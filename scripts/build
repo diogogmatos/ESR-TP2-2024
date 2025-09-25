@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e  # Exit the script if any command fails
+
+# Function to handle errors
+function on_error {
+    echo "Error: Build failed. Aborting script."
+    echo "Run the script in the repo's root directory"
+}
+trap on_error ERR  # Call on_error function if any command exits with a non-zero status
+
+# Check if the -core flag is provided
+CORE_MODE=false
+if [[ "$1" == "-core" ]]; then
+    CORE_MODE=true
+    BIN_DIR="/usr/bin"  # Set the path to the desired bin directory
+fi
+
+echo "Building node"
+go build -o node ./node
+
+echo "Building server"
+go build -o server ./server
+
+echo "Building client"
+go build -o client ./client
+
+go build -o video_client_test ./testing/video_client
+go build -o video_server_test ./testing/video_server
+
+
+LOCAL_BIN_DIR="bin"
+mkdir -p $LOCAL_BIN_DIR
+
+
+# rm $LOCAL_BIN_DIR/*
+
+mv -f node/node "$LOCAL_BIN_DIR"/node
+mv -f server/server "$LOCAL_BIN_DIR"/server
+mv -f client/client "$LOCAL_BIN_DIR"/client
+mv -f *_test $LOCAL_BIN_DIR/
+
+# If -core flag is provided, copy executables to the bin folder
+if $CORE_MODE; then
+    echo "Copying executables to $BIN_DIR"
+    # sudo rm "$BIN_DIR"/client "$BIN_DIR"/server "$BIN_DIR"/node
+    sudo cp -fr "$LOCAL_BIN_DIR"/* "$BIN_DIR"/
+fi    
+
+
+echo "Build complete"

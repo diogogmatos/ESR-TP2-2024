@@ -1,0 +1,22 @@
+Path="/tmp/"$(ls /tmp | grep pycore)
+echo "Path: " $Path
+
+
+echo "Server"
+chmod +x server
+cp server  $Path/Server.conf/run
+
+xterm -T "Server" -e bash -c "vcmd -c $Path/Server sh ./run" &
+
+echo "Nodes"
+
+for node_dir in n*; do
+  cp $node_dir $Path/$node_dir.conf/run
+  chmod +x $Path/$node_dir.conf/run 
+  number=${node_dir#n}  
+  # mkfifo $Path/$node_dir.conf/FIFO
+  # gnome-terminal -- bash -c "vcmd -c $Path/$node_dir ./run"
+  # xterm -T $node_dir -e bash -c "vcmd -c $Path/$node_dir unbuffer ./run | tee $Path/$node_dir.conf/logs.log" &
+  xterm  -geometry 150x20+$(($number*10))+$((900-$number*10)) -T $node_dir -e bash -c "vcmd -c $Path/$node_dir sh ./run" &
+
+done

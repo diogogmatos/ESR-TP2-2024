@@ -1,0 +1,14 @@
+BIN_DIR="/usr/bin"
+echo "Building node"
+go build -o node ./node
+
+LOCAL_BIN_DIR="bin"
+mkdir -p $LOCAL_BIN_DIR
+
+
+# rm $LOCAL_BIN_DIR/*
+
+mv -f node/node "$LOCAL_BIN_DIR"/node
+    echo "Copying executables to $BIN_DIR"
+    # sudo rm "$BIN_DIR"/client "$BIN_DIR"/server "$BIN_DIR"/node
+    sudo cp -fr "$LOCAL_BIN_DIR"/* "$BIN_DIR"/
